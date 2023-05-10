@@ -22,7 +22,7 @@ const getOnelist = async (request,response) => {
             }
         });
         if(checkId === null){
-            return response.status(404).send("Please enter a valid Id")
+            return response.status(400).send("Please enter a valid Id")
         }
 
         return response.status(201).json(checkId);
@@ -60,7 +60,7 @@ const updateATodo = async (request,response) => {
         if(error) {
             return response.status(400).send(error.details[0].message)
         }
-        
+
         const uniqueId = parseInt(request.params.id);
     
         const checkId = await prisma.list.findUnique({
@@ -69,7 +69,7 @@ const updateATodo = async (request,response) => {
             }
         });
         if(checkId === null){
-            return response.status(404).send("Please enter a valid Id")
+            return response.status(400).send("Please enter a valid Id")
         }
 
         const updateText = request.body.text;
