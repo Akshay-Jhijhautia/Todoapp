@@ -1,11 +1,12 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const validateToDo = require('../validations/index');
+const {validateToDo,validateParams} = require('../validations/index');
 
 const getToDoList = async (request,response) => {
     try {
         const toDoList = await prisma.list.findMany();
+
         return response.status(201).json(toDoList);
     } catch (error) {
         console.log(error);
@@ -14,19 +15,19 @@ const getToDoList = async (request,response) => {
 
 const getOnelist = async (request,response) => {
     try {
-        const uniqueId = parseInt(request.params.id);
-
-        if(!Number.isInteger(uniqueId)){
-            return response.status(400).send("id should be a number")
+        const { error } = validateParams(request.params);
+        if(error){
+            return response.status(400).send(error.details[0].message)
         }
-    
+
+        const uniqueId = parseInt(request.params.id);
         const checkId = await prisma.list.findUnique({
             where : {
                 id : uniqueId
             }
         });
         if(checkId === null){
-            return response.status(400).send("Please enter a valid Id")
+            return response.status(400).json({message : "id not found"})
         }
 
         return response.status(201).json(checkId);
@@ -60,15 +61,16 @@ const createNewTodo = async (request,response) => {
 
 const updateATodo = async (request,response) => {
     try {
-        const { error } = validateToDo(request.body);
-        if(error) {
-            return response.status(400).send(error.details[0].message)
-        }
 
         const uniqueId = parseInt(request.params.id);
 
         if(!Number.isInteger(uniqueId)){
-            return response.status(400).send("id should be a number")
+            return response.status(404).send("Id should be a integer")
+        }
+        
+        const {error}  = validateToDo(request.body);
+        if(error) {
+            return response.status(400).send(error.details[0].message)
         }
     
         const checkId = await prisma.list.findUnique({
@@ -77,7 +79,7 @@ const updateATodo = async (request,response) => {
             }
         });
         if(checkId === null){
-            return response.status(400).send("Please enter a valid Id")
+            return response.status(400).json({message : "id not found"})
         }
 
         const updateText = request.body.text;
@@ -102,11 +104,12 @@ const updateATodo = async (request,response) => {
 
 const deleteOneTodo = async (request,response) => {
     try {
-        const uniqueId = parseInt(request.params.id);
-
-        if(!Number.isInteger(uniqueId)){
-            return response.status(400).send("id should be a number")
+        const { error } = validateParams(request.params);
+        if(error){
+            return response.status(400).send(error.details[0].message)
         }
+
+        const uniqueId = parseInt(request.params.id);
     
         const checkId = await prisma.list.findUnique({
             where : {
@@ -114,7 +117,7 @@ const deleteOneTodo = async (request,response) => {
             }
         });
         if(checkId === null){
-            return response.status(404).send("Please enter a valid Id")
+            return response.status(404).json({message : "id not found"})
         }
 
         const deleteTodo = await prisma.list.delete({

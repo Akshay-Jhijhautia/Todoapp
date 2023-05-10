@@ -9,4 +9,11 @@ function validateToDo(list){
     return schema.validate(list);
 }
 
-module.exports = validateToDo;
+function validateParams(list){
+    const schema = Joi.object({
+        id: Joi.number()
+    })
+    return schema.validate(list);
+}
+
+module.exports = {validateToDo,validateParams};
