@@ -15,6 +15,10 @@ const getToDoList = async (request,response) => {
 const getOnelist = async (request,response) => {
     try {
         const uniqueId = parseInt(request.params.id);
+
+        if(!Number.isInteger(uniqueId)){
+            return response.status(400).send("id should be a number")
+        }
     
         const checkId = await prisma.list.findUnique({
             where : {
@@ -62,6 +66,10 @@ const updateATodo = async (request,response) => {
         }
 
         const uniqueId = parseInt(request.params.id);
+
+        if(!Number.isInteger(uniqueId)){
+            return response.status(400).send("id should be a number")
+        }
     
         const checkId = await prisma.list.findUnique({
             where : {
@@ -95,6 +103,10 @@ const updateATodo = async (request,response) => {
 const deleteOneTodo = async (request,response) => {
     try {
         const uniqueId = parseInt(request.params.id);
+
+        if(!Number.isInteger(uniqueId)){
+            return response.status(400).send("id should be a number")
+        }
     
         const checkId = await prisma.list.findUnique({
             where : {
